@@ -30,15 +30,3 @@ jobs:
       run: |
         docker push ${{env.IMAGE_REGISTRY}}/birds/elio:${{ env.IMAGE_TAG }}
         docker push ${{env.IMAGE_REGISTRY}}/birds/elio:latest
-
-    # - name: Create sif file
-
-    # - name: Create Release
-    #   uses: softprops/action-gh-release@v2
-    #   with:
-    #     # This automatically generates the "What's Changed" notes
-    #     generate_release_notes: true
-    #     # If you built binaries in a previous step, list them here:
-    #     # files: |
-    #     #   dist/my-app.exe
-    #     #   dist/my-app-macos
