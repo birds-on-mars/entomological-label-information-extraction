@@ -11,7 +11,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: us-east-1
   IMAGE_REGISTRY: public.ecr.aws/m2e0u2b4
-  IMAGE_TAG: birds/elio:${{ github.ref_name }}
+  IMAGE_TAG: ${{ github.ref_name }}
 
 jobs:
   build-docker-image:
@@ -22,11 +22,14 @@ jobs:
       uses: actions/checkout@v4
     - name: Build image
       run: |
-        docker build -t ${{env.IMAGE_REGISTRY}}/${{ env.IMAGE_TAG }} -f pipelines/Dockerfile .
+        docker build -t ${{env.IMAGE_REGISTRY}}/birds/elio:${{ env.IMAGE_TAG }} -f pipelines/Dockerfile .
+        docker tag ${{env.IMAGE_REGISTRY}}/birds/elio:${{ env.IMAGE_TAG }} ${{env.IMAGE_REGISTRY}}/birds/elio:latest
     - name: docker login to aws
       run: aws ecr-public get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.IMAGE_REGISTRY }}
     - name: Push image
-      run: docker push ${{env.IMAGE_REGISTRY}}/${{ env.IMAGE_TAG }}
+      run: |
+        docker push ${{env.IMAGE_REGISTRY}}/birds/elio:${{ env.IMAGE_TAG }}
+        docker push ${{env.IMAGE_REGISTRY}}/birds/elio:latest
 
     # - name: Create sif file
 
