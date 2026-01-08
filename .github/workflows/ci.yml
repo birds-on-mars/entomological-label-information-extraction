@@ -3,9 +3,9 @@ name: CI
 on:
   push:
     # deactivating for now by naming some_branch
-    branches: [ some_branch ]
-  # pull_request:
-  #   branches: [ main, develop ]
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
 jobs:
   test:
