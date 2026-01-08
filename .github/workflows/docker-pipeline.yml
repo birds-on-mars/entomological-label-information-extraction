@@ -1,0 +1,32 @@
+name: Docker Pipeline
+
+on:
+  push:
+    branches: [ main, cicd/initial_workflow ]
+
+#   workflow_dispatch:
+
+# create variables
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: us-east-1
+# TODO change password stdin when alias is approved
+  IMAGE_REGISTRY: public.ecr.aws/m2e0u2b4
+#   TODO tag setting from what? using static image name and tag for now
+  IMAGE_TAG: birds/elio:latest
+
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    - name: Build image
+      run: |
+        docker build -t ${{env.IMAGE_REGISTRY}}/${{ env.IMAGE_TAG }} -f pipelines/Dockerfile ..
+    - name: docker login to aws
+      run: aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.IMAGE_REGISTRY }}
+    - name: Push image
+      run: docker push ${{env.IMAGE_REGISTRY}}/${{ env.IMAGE_TAG }}
