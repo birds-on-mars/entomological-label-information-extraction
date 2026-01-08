@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Build image
       run: |
-        docker build -t ${{env.IMAGE_REGISTRY}}/${{ env.IMAGE_TAG }} -f pipelines/Dockerfile ..
+        docker build -t ${{env.IMAGE_REGISTRY}}/${{ env.IMAGE_TAG }} -f pipelines/Dockerfile .
     - name: docker login to aws
       run: aws ecr-public get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.IMAGE_REGISTRY }}
     - name: Push image
