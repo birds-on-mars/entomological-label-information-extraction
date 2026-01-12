@@ -51,7 +51,6 @@ jobs:
     steps:
     - name: Validate Inputs
       run: |
-        ls -lha
         if [ -z "${{ github.event.inputs.docker-image-tag }}" ]; then
           echo "Error: 'docker-image-tag' input cannot be empty."
           exit 1
@@ -60,6 +59,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Build image
       run: |
+        ls -lha
         docker build -t ${{env.IMAGE_REGISTRY}}/elio:latest -f pipelines/Dockerfile.full .
         if [ "${{ github.event.inputs.docker-image-tag }}" != "latest" ]; then
           docker tag ${{env.IMAGE_REGISTRY}}/elio:latest ${{env.IMAGE_REGISTRY}}/elio:${{ env.IMAGE_TAG }}
