@@ -60,7 +60,7 @@ jobs:
     - name: Build image
       run: |
         docker build -t ${{env.IMAGE_REGISTRY}}/elio:latest -f pipelines/Dockerfile .
-        if [ "${{ github.event.inputs.docker-image-tag }}" != "latest"]; then
+        if [ "${{ github.event.inputs.docker-image-tag }}" != "latest" ]; then
           docker tag ${{env.IMAGE_REGISTRY}}/elio:latest ${{env.IMAGE_REGISTRY}}/elio:${{ env.IMAGE_TAG }}
         fi
 
@@ -74,7 +74,7 @@ jobs:
     - name: Push image
       run: |
         docker push ${{env.IMAGE_REGISTRY}}/elio:latest
-        if [ "${{ github.event.inputs.docker-image-tag }}" != "latest"]; then
+        if [ "${{ github.event.inputs.docker-image-tag }}" != "latest" ]; then
           docker push ${{env.IMAGE_REGISTRY}}/elio:${{env.IMAGE_TAG}}
         fi
 
