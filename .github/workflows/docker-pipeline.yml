@@ -1,0 +1,44 @@
+name: Docker Pipeline
+
+on:
+  # push:
+    # tags:
+      # - 'v*'
+  workflow_dispatch:
+
+# create variables
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: us-east-1
+  IMAGE_REGISTRY: public.ecr.aws/birdsonmars
+  IMAGE_TAG: ${{ github.ref_name }}
+
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    - name: Build image
+      run: |
+        docker build -t ${{env.IMAGE_REGISTRY}}/elio:latest -f pipelines/Dockerfile .
+
+    - name: docker login to aws
+      run: aws ecr-public get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.IMAGE_REGISTRY }}
+    - name: Push image
+      run: |
+        docker push ${{env.IMAGE_REGISTRY}}/elio:latest
+
+    # - name: Create sif file
+
+    # - name: Create Release
+    #   uses: softprops/action-gh-release@v2
+    #   with:
+    #     # This automatically generates the "What's Changed" notes
+    #     generate_release_notes: true
+    #     # If you built binaries in a previous step, list them here:
+    #     # files: |
+    #     #   dist/my-app.exe
+    #     #   dist/my-app-macos
