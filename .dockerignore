@@ -1,2 +1,11 @@
 .github
-docs
+data/
+training_notebooks/
+tools/
+docs/
+*.tar
+*.tar.gz
+__pycache__
+*.pyc
+.DS_Store
+**/.DS_Store

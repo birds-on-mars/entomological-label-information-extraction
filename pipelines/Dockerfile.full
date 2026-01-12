@@ -1,0 +1,65 @@
+# Use bookworm as base image for better GLIBC compatibility on HPC
+# (Bullseye caused version conflicts with the host system)
+FROM python:3.10.14-bookworm
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+# Includes libraries for OpenCV (libgl*, libsm6, etc.) and Tesseract OCR
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender1 \
+    libstdc++6 libjpeg-dev libpng-dev libopenblas-dev libomp5 \
+    tesseract-ocr libtesseract-dev python3-opencv \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# nstall Python dependencies
+COPY pipelines/requirements /app/pipelines/requirements
+
+RUN pip install --no-cache-dir \
+    -r /app/pipelines/requirements/segmentation.txt \
+    -r /app/pipelines/requirements/rotation.txt \
+    -r /app/pipelines/requirements/classifier.txt \
+    -r /app/pipelines/requirements/tesseract.txt \
+    -r /app/pipelines/requirements/empty_labels.txt \
+    -r /app/pipelines/requirements/postprocess.txt && \
+    pip check
+
+# Copy the entire project context into the container
+# Assumes build command is run from the project root (e.g., docker build -f pipelines/Dockerfile ...)
+COPY . /app
+
+# Setup Global Directories for Models
+# Define environment variables so libraries know where to look for models
+ENV NLTK_DATA=/app/nltk_data
+ENV TORCH_HOME=/app/torch_cache
+
+# Create directories for the models
+RUN mkdir -p $NLTK_DATA && \
+    mkdir -p $TORCH_HOME
+
+# Pre-download Models (for offline HPC usage)
+# Download NLTK data (punkt, punkt_tab) into the global directory
+RUN python -c 'import nltk; nltk.download("punkt", download_dir="/app/nltk_data"); nltk.download("punkt_tab", download_dir="/app/nltk_data");'
+
+# Download PyTorch Faster R-CNN weights into the global torch cache
+# This ensures the model is baked into the image and doesn't try to download at runtime
+RUN export TORCH_HOME=/app/torch_cache && \
+    python -c "import torchvision.models as models; models.detection.fasterrcnn_resnet50_fpn(pretrained=True)"
+
+# Set Permissions
+# Essential: Grant read/write/execute permissions to all users.
+# Apptainer runs as the user, not root, so standard permissions would fail.
+RUN chmod -R 777 /app/nltk_data && \
+    chmod -R 777 /app/torch_cache
+
+# Set Runtime Environment Variables
+# Optimize threading for stand  ard CPU usage
+ENV OMP_NUM_THREADS=1
+ENV MKL_NUM_THREADS=1
+ENV NUMEXPR_NUM_THREADS=1
+ENV OPENBLAS_NUM_THREADS=1
+ENV LD_LIBRARY_PATH="/.singularity.d/libs"
+# Default command (can be overridden by Apptainer/Singularity exec)
+CMD ["/bin/bash"]
