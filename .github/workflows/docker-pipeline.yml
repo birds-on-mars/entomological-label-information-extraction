@@ -51,6 +51,7 @@ jobs:
     steps:
     - name: Validate Inputs
       run: |
+        ls -lha
         if [ -z "${{ github.event.inputs.docker-image-tag }}" ]; then
           echo "Error: 'docker-image-tag' input cannot be empty."
           exit 1
@@ -66,7 +67,7 @@ jobs:
 
     - name: Testing docker run
       run: |
-        docker run --rm -v $(pwd)/data:/app/data ${{env.IMAGE_REGISTRY}}/elio:latest \
+        docker run --rm -v ./data:/app/data ${{env.IMAGE_REGISTRY}}/elio:latest \
           python scripts/run_pipeline.py --input-dir /app/data/MLI/input --output-dir /app/data/MLI/output --config-json '{"device": "cpu"}'
 
     - name: docker login to aws
