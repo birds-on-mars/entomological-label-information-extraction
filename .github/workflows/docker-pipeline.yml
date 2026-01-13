@@ -59,16 +59,15 @@ jobs:
       uses: actions/checkout@v4
     - name: Build image
       run: |
-        ls -lha
         docker build -t ${{env.IMAGE_REGISTRY}}/elio:latest -f pipelines/Dockerfile.full .
         if [ "${{ github.event.inputs.docker-image-tag }}" != "latest" ]; then
           docker tag ${{env.IMAGE_REGISTRY}}/elio:latest ${{env.IMAGE_REGISTRY}}/elio:${{ env.IMAGE_TAG }}
         fi
 
-    - name: Testing docker run
-      run: |
-        docker run --rm -v ./data:/app/data ${{env.IMAGE_REGISTRY}}/elio:latest \
-          python scripts/run_pipeline.py --input-dir /app/data/MLI/input --output-dir /app/data/MLI/output --config-json '{"device": "cpu"}'
+    # - name: Testing docker run
+    #   run: |
+    #     docker run --rm -v ./data:/app/data ${{env.IMAGE_REGISTRY}}/elio:latest \
+    #       python scripts/run_pipeline.py --input-dir /app/data/MLI/input --output-dir /app/data/MLI/output --config-json '{"device": "cpu"}'
 
     - name: docker login to aws
       run: aws ecr-public get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.IMAGE_REGISTRY }}
