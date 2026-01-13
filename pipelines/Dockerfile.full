@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-# nstall Python dependencies
+# Install Python dependencies
 COPY pipelines/requirements /app/pipelines/requirements
 
 RUN pip install --no-cache-dir \
@@ -55,7 +55,7 @@ RUN chmod -R 777 /app/nltk_data && \
     chmod -R 777 /app/torch_cache
 
 # Set Runtime Environment Variables
-# Optimize threading for stand  ard CPU usage
+# Optimize threading for standard CPU usage
 ENV OMP_NUM_THREADS=1
 ENV MKL_NUM_THREADS=1
 ENV NUMEXPR_NUM_THREADS=1
