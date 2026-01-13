@@ -8,7 +8,6 @@ on:
         required: true
         default: "latest"
 
-# create variables
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -17,36 +16,8 @@ env:
   IMAGE_TAG: ${{ github.event.inputs.docker-image-tag }}
 
 jobs:
-  # unit-tests:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - name: Checkout Repository
-  #     uses: actions/checkout@v4
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v4
-  #     with:
-  #       python-version: '3.10'
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install --no-cache-dir \
-  #           -r ./pipelines/requirements/segmentation.txt \
-  #           -r ./pipelines/requirements/rotation.txt \
-  #           -r ./pipelines/requirements/classifier.txt \
-  #           -r ./pipelines/requirements/tesseract.txt \
-  #           -r ./pipelines/requirements/empty_labels.txt \
-  #           -r ./pipelines/requirements/postprocess.txt && \
-  #           pip check
-  #       pip install pytest
-  #   # TODO
-  #   # - name: Run tests
-  #   #   run: |
-  #   #     pytest unit_tests/
-
   build-docker-image:
     runs-on: ubuntu-latest
-    # needs: unit-tests
 
     steps:
     - name: Validate Inputs
@@ -79,15 +50,3 @@ jobs:
         if [ "${{ github.event.inputs.docker-image-tag }}" != "latest" ]; then
           docker push ${{env.IMAGE_REGISTRY}}/elio:${{env.IMAGE_TAG}}
         fi
-
-    # - name: Create sif file
-
-    # - name: Create Release
-    #   uses: softprops/action-gh-release@v2
-    #   with:
-    #     # This automatically generates the "What's Changed" notes
-    #     generate_release_notes: true
-    #     # If you built binaries in a previous step, list them here:
-    #     # files: |
-    #     #   dist/my-app.exe
-    #     #   dist/my-app-macos
