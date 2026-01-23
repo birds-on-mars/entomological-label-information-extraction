@@ -1,4 +1,5 @@
-# data/
+.github
+data/
 training_notebooks/
 tools/
 docs/
